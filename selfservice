@@ -1,0 +1,220 @@
+#!/bin/bash
+
+DEFAULT_AUTH_URL="https://auth.isv.ci"
+if [ -z "${AUTH_URL}" ] ; then
+  AUTH_URL="${DEFAULT_AUTH_URL}"
+fi
+
+DEFAULT_SELF_SERVICE_URL="https://self-service.isv.ci"
+if [ -z "${SELF_SERVICE_URL}" ] ; then
+  SELF_SERVICE_URL="${DEFAULT_SELF_SERVICE_URL}"
+fi
+
+function help {
+  cat <<EOF
+USAGE: selfservice.sh <command> [<args>]
+A semi-official helper for running commands to the Self Service API
+
+Commands:
+  help                Prints this help message
+  auth <slackToken>   Retrieve an Auth token from the Auth service. Requires a Slack Token as an argument.
+                      To get one, visit:
+                      ${AUTH_URL}
+  list                List available environments
+  get <id>            Get details for an environment. Requires an environment ID as an argument.
+  claim <type>        Claim an environment
+  claimAndWait <type> Claim an environment and poll until it is ready
+  release <id>        Release an environment
+  version             Prints the version for this tool
+
+Variables:
+  AUTH_URL            URL of the Auth service (Default: ${DEFAULT_AUTH_URL})
+  SELF_SERVICE_URL    URL to Self Service instance (Default: ${DEFAULT_SELF_SERVICE_URL})
+EOF
+}
+
+function getAuthToken {
+  slack_token=$1
+  if [ -z "${slack_token}" ] ; then
+    echo "Missing Slack token argument" >&2
+    help
+    exit 1
+  fi
+
+  if ! AUTH_TOKEN=$(
+    curl \
+      --fail \
+      --silent \
+      --show-error \
+      --request POST \
+      --header "Content-Type: application/json" \
+      --data "{\"slackToken\": \"${slack_token}\"}" \
+      "${AUTH_URL}/token"
+    )
+  then
+    echo "Failed to get an auth token." >&2
+    echo "Check your slack token." >&2
+    exit 1
+  fi
+  echo "export AUTH_TOKEN=${AUTH_TOKEN}"
+}
+
+function checkForAuthToken {
+  if [ -z "${AUTH_TOKEN}" ] ; then
+    echo "AUTH_TOKEN must be defined." >&2
+    echo "Try running \"selfservice auth <slackToken>\" first" >&2
+    exit 1
+  fi
+}
+
+function listEnvironments {
+  curl \
+    --fail \
+    --silent \
+    --show-error \
+    --header "Authorization: Token ${AUTH_TOKEN}" \
+    "${SELF_SERVICE_URL}/environments.json"
+}
+
+function getEnvironment {
+  environment_id=$1
+  if [ -z "${environment_id}" ] ; then
+    echo "Missing environment ID argument"
+    help
+    exit 1
+  fi
+
+  if ! curl \
+    --fail \
+    --silent \
+    --show-error \
+    --header "Authorization: Token ${AUTH_TOKEN}" \
+    "${SELF_SERVICE_URL}/environments/${environment_id}.json"
+  then
+    echo "Failed to get environment" >&2
+    exit 1
+  fi
+}
+
+function listEnvironmentTypes {
+  curl \
+    --fail \
+    --silent \
+    --show-error \
+    --header "Authorization: Token ${AUTH_TOKEN}" \
+    "${SELF_SERVICE_URL}/environment_types.json"
+}
+
+function claimEnvironment {
+  environment_type=$1
+  if [ -z "${environment_type}" ] ; then
+    echo "Missing environment type argument" >&2
+    help
+    exit 1
+  fi
+
+  if ! curl \
+    --fail \
+    --silent \
+    --show-error \
+    --request POST \
+    --header "Authorization: Token ${AUTH_TOKEN}" \
+    --header "Content-Type: application/json" \
+    --data "{\"pool_name\": \"${environment_type}\"}" \
+    "${SELF_SERVICE_URL}/environments.json" ; then
+    echo "Failed to claim environment" >&2
+    exit 1
+  fi
+}
+
+function claimEnvironmentAndWait {
+  environment_type=$1
+  environment=$(claimEnvironment "${environment_type}")
+
+  id=$(echo "${environment}" | jq -r .id)
+  status=$(echo "${environment}" | jq -r .status)
+
+  while [ "${status}" = "pending" ] ; do
+    sleep 1
+    environment=$(getEnvironment "${id}")
+    status=$(echo "${environment}" | jq -r .status)
+  done
+
+  echo "${environment}"
+  if [ "${status}" != "success" ] ; then
+    echo "Failed to claim the environment" >&2
+    exit 1
+  fi
+}
+
+function releaseEnvironment {
+  environment_id=$1
+  if [ -z "${environment_id}" ] ; then
+    echo "Missing environment ID argument"
+    help
+    exit 1
+  fi
+
+  if ! curl \
+    --fail \
+    --silent \
+    --show-error \
+    --request DELETE \
+    --header "Authorization: Token ${AUTH_TOKEN}" \
+    "${SELF_SERVICE_URL}/environments/${environment_id}.json"
+  then
+    echo "Failed to release environment" >&2
+    exit 1
+  fi
+}
+
+function printVersion {
+  if [ -z "${SELFSERVICE_CLI_VERSION}" ] ; then
+    echo "dev"
+  else
+    echo "${SELFSERVICE_CLI_VERSION}"
+  fi
+}
+
+command=${1:-help}
+case "${command}" in
+  auth)
+    getAuthToken "$2"
+    ;;
+  help)
+    help
+    exit 0
+    ;;
+  list)
+    checkForAuthToken
+    listEnvironments
+    ;;
+  get)
+    checkForAuthToken
+    getEnvironment "$2"
+    ;;
+  types)
+    checkForAuthToken
+    listEnvironmentTypes
+    ;;
+  claim)
+    checkForAuthToken
+    claimEnvironment "$2"
+    ;;
+  claimAndWait)
+    checkForAuthToken
+    claimEnvironmentAndWait "$2"
+    ;;
+  release)
+    checkForAuthToken
+    releaseEnvironment "$2"
+    ;;
+  version)
+    printVersion
+    ;;
+  *)
+    echo "Unknown command: ${1}" >&2
+    help
+    exit 1
+    ;;
+esac
