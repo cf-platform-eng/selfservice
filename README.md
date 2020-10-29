@@ -30,7 +30,7 @@ $ selfservice list | jq .
     "created_at": "2020-10-28T18:28:46.131Z",
     "updated_at": "2020-10-28T18:28:46.131Z",
     "created_by": "pwall@pivotal.io",
-    "pool_name": "isv_ci_tas_srt_2_10",
+    "environment_type": "isv_ci_tas_srt_2_10",
     "expiry": null,
     "released_by": null,
     "released_at": null,
@@ -56,7 +56,7 @@ $ selfservice get 136 | jq .
   "created_at": "2020-10-28T18:28:46.131Z",
   "updated_at": "2020-10-28T18:28:46.131Z",
   "created_by": "pwall@pivotal.io",
-  "pool_name": "isv_ci_tas_srt_2_10",
+  "environment_type": "isv_ci_tas_srt_2_10",
   "expiry": null,
   "released_by": null,
   "released_at": null,
@@ -97,7 +97,7 @@ $ selfservice claim isv_ci_tas_srt_2_10 | jq .
   "created_by": "pwall@pivotal.io",
   "released_by": null,
   "expiry": null,
-  "pool_name": "isv_ci_tas_srt_2_10",
+  "environment_type": "isv_ci_tas_srt_2_10",
   "url": "https://self-service.isv.ci/environments/139.json"
 }
 ```
@@ -119,7 +119,7 @@ $ selfservice claimAndWait isv_ci_tas_srt_2_10 | jq .
   "created_at": "2020-10-28T18:41:48.384Z",
   "updated_at": "2020-10-28T18:41:49.712Z",
   "created_by": "pwall@pivotal.io",
-  "pool_name": "isv_ci_tas_srt_2_10",
+  "environment_type": "isv_ci_tas_srt_2_10",
   "expiry": "2020-10-29T18:41:49.000Z",
   "released_by": null,
   "released_at": null,
@@ -145,7 +145,7 @@ $ selfservice release 145 | jq .
   "created_by": "pwall@pivotal.io",
   "released_by": "pwall@pivotal.io",
   "expiry": "2020-10-29T18:51:57.000Z",
-  "pool_name": "isv_ci_tas_srt_2_7",
+  "environment_type": "isv_ci_tas_srt_2_7",
   "url": "https://self-service.isv.ci/environments/145.json"
 }
 ```
