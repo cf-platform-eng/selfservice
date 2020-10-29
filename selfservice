@@ -123,7 +123,7 @@ function claimEnvironment {
     --request POST \
     --header "Authorization: Token ${AUTH_TOKEN}" \
     --header "Content-Type: application/json" \
-    --data "{\"pool_name\": \"${environment_type}\"}" \
+    --data "{\"environment_type\": \"${environment_type}\"}" \
     --write-out "\n" \
     "${SELF_SERVICE_URL}/environments.json" ; then
     echo "Failed to claim environment" >&2
