@@ -1,0 +1,34 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: ubuntu
+
+params:
+  AUTH_URL: https://auth.isv.ci
+  SELF_SERVICE_URL: https://self-service.isv.ci
+  SLACK_TOKEN:
+
+inputs:
+  - name: self-service
+
+outputs:
+  - name: self-service
+  - name: auth-token
+
+run:
+  path: /bin/bash
+  args:
+    - -exc
+    - |
+
+      set -e
+
+      apt update
+      apt install curl -y
+
+      ./self-service/selfservice auth "$SLACK_TOKEN" > token.sh
+      source ./token.sh
+      echo $AUTH_TOKEN > auth-token/token.jwt

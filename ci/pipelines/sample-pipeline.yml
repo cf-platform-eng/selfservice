@@ -1,0 +1,29 @@
+---
+resources:
+  - name: self-service
+    type: git
+    source:
+      uri: git@github.com:cf-platform-eng/selfservice.git
+      branch: 175562044-ci
+      private_key: ((github.private_key))
+
+jobs:
+  - name: claim-and-wait-for-environment
+    plan:
+    - get: self-service
+      passed:
+        - list-environments
+    - task: auth
+      file: self-service/ci/tasks/auth.yml
+      params:
+        SLACK_TOKEN: ((test-slack-partner-token))
+    - task: types
+      file: self-service/ci/tasks/types.yml
+    - task: claim-and-wait
+      file: self-service/ci/tasks/claim-and-wait.yml
+      params:
+        ENVIRONMENT_TYPE: isv_ci_tas_srt_2_10
+    - task: get-environment
+      file: self-service/ci/tasks/get.yml
+    - task: release-environment
+      file: self-service/ci/tasks/release.yml

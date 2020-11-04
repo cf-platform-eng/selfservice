@@ -1,0 +1,35 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: ubuntu
+
+params:
+  AUTH_URL: https://auth.isv.ci
+  SELF_SERVICE_URL: https://self-service.isv.ci
+  ENVIRONMENT_TYPE:
+
+inputs:
+  - name: self-service
+  - name: auth-token
+
+outputs:
+  - name: self-service
+  - name: environment
+
+run:
+  path: /bin/bash
+  args:
+    - -exc
+    - |
+
+      set -e
+
+      apt update
+      apt install curl jq -y
+
+      export AUTH_TOKEN="$(cat auth-token/token.jwt)"
+
+      ./self-service/selfservice claimAndWait "$ENVIRONMENT_TYPE" > environment/environment.json
