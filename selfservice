@@ -25,6 +25,7 @@ Commands:
   claim <type>        Claim an environment
   claimAndWait <type> Claim an environment and poll until it is ready
   release <id>        Release an environment
+  types               List available environment types
   version             Prints the version for this tool
 
 Variables:
