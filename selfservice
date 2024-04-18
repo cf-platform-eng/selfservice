@@ -17,7 +17,7 @@ A semi-official helper for running commands to the Self Service API
 
 Commands:
   help                Prints this help message
-  auth <slackToken>   Retrieve an Auth token from the Auth service. Requires a Slack Token as an argument.
+  auth <token>        Retrieve an Auth token from the Auth service. Requires a API Token as an argument.
                       To get one, visit:
                       ${AUTH_URL}
   list                List available environments
@@ -35,9 +35,9 @@ EOF
 }
 
 function getAuthToken {
-  slack_token=$1
-  if [ -z "${slack_token}" ] ; then
-    echo "Missing Slack token argument" >&2
+  api_token=$1
+  if [ -z "${api_token}" ] ; then
+    echo "Missing API token argument" >&2
     help
     exit 1
   fi
@@ -49,12 +49,12 @@ function getAuthToken {
       --show-error \
       --request POST \
       --header "Content-Type: application/json" \
-      --data "{\"slackToken\": \"${slack_token}\"}" \
+      --data "\"${api_token}\"" \
       "${AUTH_URL}/token"
     )
   then
     echo "Failed to get an auth token." >&2
-    echo "Check your slack token." >&2
+    echo "Check your API token." >&2
     exit 1
   fi
   echo "export AUTH_TOKEN=${AUTH_TOKEN}"
@@ -63,7 +63,7 @@ function getAuthToken {
 function checkForAuthToken {
   if [ -z "${AUTH_TOKEN}" ] ; then
     echo "AUTH_TOKEN must be defined." >&2
-    echo "Try running \"selfservice auth <slackToken>\" first" >&2
+    echo "Try running \"selfservice auth <api_token>\" first" >&2
     exit 1
   fi
 }

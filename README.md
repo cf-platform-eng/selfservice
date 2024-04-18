@@ -7,7 +7,7 @@ selfservice is a CLI tool to make using the [Self Service API](https://self-serv
 ### Auth
 This command will authenticate against the Auth Service, returning a valid token that can be used for later commands.
 
-It requires a Slack token as an argument and will print an `export` command that will set the AUTH_TOKEN environment variable.
+It requires a API token as an argument and will print an `export` command that will set the AUTH_TOKEN environment variable.
 
 ```bash
 $ selfservice auth xoxp-504313...
@@ -160,11 +160,11 @@ The selfservice CLI uses three environment variables:
 
 ## Notes
 
-### Finding your Slack Token
+### Finding your API Token
 
-To get a valid Slack token for authentication:
+To get a valid API token for authentication:
 
 1. Visit https://auth.isv.ci
-1. Log in via Slack, using the Pivotal Partners workspace
+1. Log in via Broadcom Okta 
 1. Scroll to the bottom of the profile page
-1. Click on the "Fetch Slack Token" button
+1. Click on the "Token for API Access" button
