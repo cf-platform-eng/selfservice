@@ -9,7 +9,7 @@ image_resource:
 params:
   AUTH_URL: https://auth.isv.ci
   SELF_SERVICE_URL: https://self-service.isv.ci
-  SLACK_TOKEN:
+  API_TOKEN:
 
 inputs:
   - name: self-service
@@ -29,6 +29,6 @@ run:
       apt update
       apt install curl -y
 
-      ./self-service/selfservice auth "$SLACK_TOKEN" > token.sh
+      ./self-service/selfservice auth "$API_TOKEN" > token.sh
       source ./token.sh
       echo $AUTH_TOKEN > auth-token/token.jwt

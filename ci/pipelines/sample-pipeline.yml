@@ -16,7 +16,7 @@ jobs:
     - task: auth
       file: self-service/ci/tasks/auth.yml
       params:
-        SLACK_TOKEN: ((test-slack-partner-token))
+        API_TOKEN: ((test-api-token))
     - task: types
       file: self-service/ci/tasks/types.yml
     - task: claim-and-wait

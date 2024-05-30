@@ -9,7 +9,7 @@ image_resource:
 params:
   AUTH_URL: https://auth.isv.ci
   SELF_SERVICE_URL: https://self-service.isv.ci
-  SLACK_TOKEN:
+  API_TOKEN:
 
 inputs:
   - name: self-service
