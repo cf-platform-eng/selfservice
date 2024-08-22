@@ -165,6 +165,7 @@ The selfservice CLI uses three environment variables:
 To get a valid API token for authentication:
 
 1. Visit https://auth.isv.ci
-1. Log in via Broadcom Okta 
+1. Click on "Sign in with Broadcom"
+1. Login into [support portal](https://login.broadcom.com/) using broadcom support credentials
 1. Scroll to the bottom of the profile page
 1. Click on the "Token for API Access" button
